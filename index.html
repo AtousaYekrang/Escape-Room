@@ -1,0 +1,330 @@
+<!doctype html>
+<!-- DOCTYPE: sagt dem Browser, dass es eine HTML5-Seite ist -->
+<html lang="de">
+<!-- lang="de": Hauptsprache der Seite ist Deutsch (gut für Screenreader/SEO) -->
+
+<head>
+  <!-- meta charset: Umlaute/Sonderzeichen korrekt anzeigen -->
+  <meta charset="utf-8" />
+
+  <!-- viewport: responsive Darstellung auf Handy/Tablet -->
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- title: Titel im Browser-Tab -->
+  <title>Campus Cipher — Mini Escape Room</title>
+
+  <!-- Google Fonts: moderne Schrift laden -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Externe CSS-Datei: Layout/Design getrennt vom HTML -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <!-- Hintergrund (nur Design, keine Spiellogik) -->
+  <div class="bg">
+    <!-- Blob-Form 1: dekorativer Hintergrund-Effekt -->
+    <div class="blob b1"></div>
+    <!-- Blob-Form 2: zweite dekorative Form -->
+    <div class="blob b2"></div>
+    <!-- Blob-Form 3: dritte dekorative Form -->
+    <div class="blob b3"></div>
+    <!-- Noise-Layer: feine Körnung/Textur über dem Hintergrund -->
+    <div class="noise"></div>
+  </div>
+
+  <!-- Hauptbereich der Seite (semantisch korrekt) -->
+  <main class="wrap">
+    <!-- Header/Hero: Titel + Statusanzeigen + Hauptbuttons -->
+    <header class="card hero">
+
+      <!-- Oberer Bereich: Branding links, Spiel-Infos rechts -->
+      <div class="heroTop">
+        <!-- Brand: Logo + Name -->
+        <div class="brand">
+          <!-- Logo (Text-Logo) -->
+          <div class="logo">CC</div>
+          <div>
+            <!-- Haupttitel -->
+            <h1>Campus Cipher</h1>
+            <!-- Kurzbeschreibung -->
+            <p class="muted small">Mini Escape Room • 4 Stages • 5–10 Minuten</p>
+          </div>
+        </div>
+
+        <!-- Meta-Infos: Timer, Score, aktuelles Stage -->
+        <div class="meta">
+          <!-- Zeit-Anzeige (wird von JS aktualisiert) -->
+          <span class="pill">⏱️ <span id="time">00:00</span></span>
+          <!-- Punkte-Anzeige (wird von JS aktualisiert) -->
+          <span class="pill">⭐ Score: <span id="score">100</span></span>
+          <!-- Stage-Anzeige (wird von JS aktualisiert) -->
+          <span class="pill">🧩 Stage: <span id="stage">1</span>/4</span>
+        </div>
+      </div>
+
+      <!-- Fortschritt: Text + Balken -->
+      <div class="progressRow">
+        <div class="progressLabel">
+          <!-- Label -->
+          <span class="muted small">Progress</span>
+          <!-- Prozenttext (wird von JS aktualisiert) -->
+          <span class="small" id="progressText">0%</span>
+        </div>
+        <div class="progress">
+          <!-- Fortschrittsbalken (Breite wird von JS gesetzt) -->
+          <div class="bar" id="progressBar" style="width:0%"></div>
+        </div>
+      </div>
+
+      <!-- Kurze Anleitung für Spieler -->
+      <p class="muted">
+        Löse 4 kurze Rätsel. Jede Hilfe kostet Punkte. Am Ende bekommst du den Joker-Code.
+        <!-- Tastatur-Hinweis: Enter zum Checken -->
+        <span class="kbd">Enter</span> zum Check.
+      </p>
+
+      <!-- Haupt-Buttons: Start, Reset, Sound -->
+      <div class="row">
+        <!-- Start: startet Spiel/Timer/Stage 1 -->
+        <button id="start" class="btn" type="button">Start Game</button>
+        <!-- Reset: setzt Fortschritt/Score/Timer zurück -->
+        <button id="reset" class="btn secondary" type="button">Reset</button>
+        <!-- Mute: Sound an/aus -->
+        <button id="mute" class="btn secondary" type="button">Sound: ON</button>
+      </div>
+
+      <!-- Status-/Feedback-Box für Meldungen (z.B. richtig/falsch) -->
+      <div id="msg" class="msg ok">Press “Start Game” to begin.</div>
+    </header>
+
+    <!-- Evidence Board: Regeln + Tipps (Einführung für den Spieler) -->
+    <section class="card board">
+      <div class="cardTitle">
+        <!-- Abschnittstitel -->
+        <h2>Evidence Board</h2>
+        <!-- Kleiner Hinweis-Tag -->
+        <span class="tag">Tip: Lies genau 👀</span>
+      </div>
+
+      <!-- Grid: 3 Infokarten nebeneinander -->
+      <div class="grid">
+        <!-- Info-Karte 1 -->
+        <div class="note">
+          <h3>File A</h3>
+          <!-- Hinweis: keine Programmierkenntnisse nötig -->
+          <p>Du brauchst <b>keine Programmierkenntnisse</b>. Nur Augen + Gehirn 😉</p>
+          <p class="muted small">Alles ist in der Seite lösbar.</p>
+        </div>
+
+        <!-- Info-Karte 2 -->
+        <div class="note">
+          <h3>File B</h3>
+          <!-- Regel: pro Stage maximal ein Hint -->
+          <p>Pro Stage max. <b>1 Hint</b> nutzen (−10 Punkte).</p>
+          <p class="muted small">Ziel: Joker-Code am Ende</p>
+        </div>
+
+        <!-- Info-Karte 3 (Regeln) -->
+        <div class="note">
+          <h3>Rules</h3>
+          <!-- Liste der Spielregeln -->
+          <ul class="small">
+            <li>4 Stufen, linear</li>
+            <li>Timer startet nach „Start Game“</li>
+            <li>Progress wird gespeichert</li>
+            <li>Client-only (kein Server)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stage 1: erstes Rätsel -->
+    <section class="card stage" data-stage="1">
+      <!-- Overlay: wird für "locked/gesperrt" verwendet (hier leer, weil Stage 1 offen ist) -->
+      <div class="lockOverlay"><span></span></div>
+
+      <!-- Stage-Header: Titel + Tag -->
+      <div class="stageHead">
+        <h2>Stage 1 — Hidden in Plain Sight</h2>
+        <span class="tag">Warm-up</span>
+      </div>
+
+      <!-- Beschreibung/Hint-Text -->
+      <p>
+        Ein Hinweis ist <b>direkt vor dir</b>… aber nicht als „Antwort“ geschrieben.<br>
+        <span class="muted small">Tipp: „erste Buchstaben“ oder „genau hinschauen“.</span>
+      </p>
+
+      <!-- Rätsel-Karte: visuelle Darstellung des Hinweises -->
+      <div class="clueCard">
+        <!-- Hintergrund-Effekt in der Karte -->
+        <div class="clueBg"></div>
+        <!-- "Ghost Word": dekoratives Wort im Hintergrund (nicht direkt als Antwort) -->
+        <!-- <div class="ghostWord" aria-hidden="true"></div> -->
+
+        <!-- Akrostichon-Text: erste Buchstaben ergeben das Lösungswort -->
+        <div class="acrostic">
+          <p class="line"><b>O</b>nly <b>R</b>eal <b>I</b>nvestigators <b>O</b>bserve <b>N</b>ight.</p>
+          <p class="muted small">Find the secret word.</p>
+        </div>
+      </div>
+
+      <!-- Eingabefeld für Antwort Stage 1 -->
+      <label class="field">
+        <span>Secret word</span>
+        <!-- id="a1": wird in JS gelesen/validiert -->
+        <input id="a1" autocomplete="off" placeholder="..." />
+      </label>
+
+      <!-- Aktionen Stage 1 -->
+      <div class="row">
+        <!-- Check: prüft Antwort über JS (data-check=1) -->
+        <button class="btn" data-check="1">Check</button>
+        <!-- Hint: zeigt Hinweis, kostet Punkte (data-hint=1) -->
+        <button class="btn secondary" data-hint="1">Hint (−10)</button>
+      </div>
+
+      <!-- Textbereich für Hint-Ausgabe -->
+      <p class="hint" id="hint1"></p>
+    </section>
+
+    <!-- Stage 2: zweites Rätsel (am Anfang gesperrt) -->
+    <section class="card stage locked" data-stage="2">
+      <!-- Overlay mit Lock-Text: erklärt, warum gesperrt -->
+      <div class="lockOverlay"><span>🔒 Locked — Solve Stage 1</span></div>
+
+      <!-- Stage-Header -->
+      <div class="stageHead">
+        <h2>Stage 2 — Alphabet Code</h2>
+        <span class="tag">Decode</span>
+      </div>
+
+      <!-- Beschreibung -->
+      <p>
+        Zahlen sind Buchstaben. <b>A=1, B=2, C=3</b> …<br>
+        Entschlüssle das Wort:
+      </p>
+
+      <!-- Box mit Code -->
+      <div class="cipherBox">
+        <div class="muted small">Code</div>
+        <!-- Code-Anzeige (könnte von JS auch geändert werden) -->
+        <div class="cipher" id="code2">3 - 1 - 13 - 16 - 21 - 19</div>
+        <div class="muted small">Decrypted word (A–Z)</div>
+      </div>
+
+      <!-- Eingabefeld für Antwort Stage 2 -->
+      <label class="field">
+        <span>Decrypted word</span>
+        <input id="a2" autocomplete="off" placeholder="......" />
+      </label>
+
+      <!-- Aktionen Stage 2 -->
+      <div class="row">
+        <button class="btn" data-check="2">Check</button>
+        <button class="btn secondary" data-hint="2">Hint (−10)</button>
+      </div>
+
+      <!-- Hint-Ausgabe Stage 2 -->
+      <p class="hint" id="hint2"></p>
+    </section>
+
+    <!-- Stage 3: Logikfrage (am Anfang gesperrt) -->
+    <section class="card stage locked" data-stage="3">
+      <!-- Overlay: gesperrt bis Stage 2 gelöst -->
+      <div class="lockOverlay"><span>🔒 Locked — Solve Stage 2</span></div>
+
+      <!-- Stage-Header -->
+      <div class="stageHead">
+        <h2>Stage 3 — One True Statement</h2>
+        <span class="tag">Logic</span>
+      </div>
+
+      <!-- Aufgabe -->
+      <p>Genau <b>eine</b> Aussage ist wahr:</p>
+
+      <!-- Auswahlmöglichkeiten als Radio Buttons -->
+      <div class="logic">
+        <!-- name="logic": nur eine Option auswählbar -->
+        <label class="choice"><input type="radio" name="logic" value="A"> A) 2 + 2 = 5</label>
+        <label class="choice"><input type="radio" name="logic" value="B"> B) The sun is cold</label>
+        <label class="choice"><input type="radio" name="logic" value="C"> C) Water is wet</label>
+        <label class="choice"><input type="radio" name="logic" value="D"> D) A triangle has 4 sides</label>
+      </div>
+
+      <!-- Alternative/zusätzliche Eingabe: Buchstabe A/B/C/D -->
+      <label class="field">
+        <span>Your answer (A/B/C/D)</span>
+        <input id="a3" autocomplete="off" placeholder="..." />
+      </label>
+
+      <!-- Aktionen Stage 3 -->
+      <div class="row">
+        <button class="btn" data-check="3">Check</button>
+        <button class="btn secondary" data-hint="3">Hint (−10)</button>
+      </div>
+
+      <!-- Hint-Ausgabe Stage 3 -->
+      <p class="hint" id="hint3"></p>
+    </section>
+
+    <!-- Stage 4: Finale Kombination (am Anfang gesperrt) -->
+    <section class="card stage locked" data-stage="4">
+      <!-- Overlay: gesperrt bis Stage 3 gelöst -->
+      <div class="lockOverlay"><span>🔒 Locked — Solve Stage 3</span></div>
+
+      <!-- Stage-Header -->
+      <div class="stageHead">
+        <h2>Stage 4 — Final Vault</h2>
+        <span class="tag">Combine</span>
+      </div>
+
+      <!-- Erklärung: wie Final-Key aufgebaut ist -->
+      <p>
+        Der Final-Key ist:
+        <b>Stage1-Word</b> + "-" + <b>Stage2-Word</b> + "-" + <b>Stage3-Letter</b>
+      </p>
+
+      <!-- Eingabe für Final-Key -->
+      <label class="field">
+        <span>Final-Key</span>
+        <input id="a4" autocomplete="off" placeholder="..." />
+      </label>
+
+      <!-- Aktionen Stage 4 -->
+      <div class="row">
+        <!-- Unlock: prüft den Final-Key -->
+        <button class="btn" data-check="4">Unlock</button>
+        <!-- Hint: Hilfe kostet Punkte -->
+        <button class="btn secondary" data-hint="4">Hint (−10)</button>
+      </div>
+
+      <!-- Hint-Ausgabe Stage 4 -->
+      <p class="hint" id="hint4"></p>
+
+      <!-- Finaler Screen: wird erst sichtbar, wenn alles gelöst ist -->
+      <div id="final" class="final hidden">
+        <h3>✅ Done!</h3>
+        <p class="muted">Your Joker-Code:</p>
+
+        <!-- Joker-Code-Ausgabe (wird von JS gesetzt) -->
+        <div class="joker" id="joker"></div>
+
+        <!-- Finale Werte: Zeit und Score -->
+        <p class="muted small">Time: <span id="finalTime"></span> • Score: <span id="finalScore"></span></p>
+      </div>
+    </section>
+
+    <!-- Footer: kleine Info am Ende -->
+    <footer class="muted small center">
+      <p>HTML / CSS / JS — client only</p>
+    </footer>
+  </main>
+
+  <!-- JavaScript-Datei: enthält Spiellogik (Timer, Score, Checks, Unlocks, Speicher) -->
+  <script src="app.js"></script>
+</body>
+</html>
